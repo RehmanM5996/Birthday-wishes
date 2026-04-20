@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Birthday Special</title>
+    <style>
+        :root {
+            --platinum: #DCDCDC;
+            --gold: #d4af37;
+            --soft-pink: #FFB6C1;
+            --curtain-rose: #bc8f8f;
+            --text-dark: #2F4F4F;
+        }
+
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+            background-color: var(--platinum);
+            color: var(--text-dark);
+            width: 100%; height: 100%;
+            position: fixed;
+        }
+
+        #animation-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            color: var(--soft-pink);
+            animation: floatUp 7s linear infinite;
+            bottom: -10vh;
+        }
+
+        /* Continuous Balloons Style */
+        .balloon {
+            position: absolute;
+            width: 40px;
+            height: 55px;
+            border-radius: 50%;
+            bottom: -100px;
+            animation: fly 8s ease-in forwards;
+            z-index: 2;
+        }
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -15px; left: 18px;
+            width: 2px; height: 20px;
+            background: rgba(0,0,0,0.1);
+        }
+
+        @keyframes fly {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-130vh) rotate(20deg); opacity: 0; }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(-120vh); opacity: 0; }
+        }
+
+        /* FIXED: No Spacing Rope Lights */
+        #rope-lights {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 85px;
+            z-index: 2500;
+            display: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='150' height='100' viewBox='0 0 150 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 Q18.75,140 37.5,0 Q56.25,140 75,0 Q93.75,140 112.5,0 Q131.25,140 150,0' fill='none' stroke='%23d4af37' stroke-width='4'/%3E%3Ccircle cx='18.75' cy='75' r='7' fill='%23fff'/%3E%3Ccircle cx='56.25' cy='75' r='7' fill='%23fff'/%3E%3Ccircle cx='93.75' cy='75' r='7' fill='%23fff'/%3E%3Ccircle cx='131.25' cy='75' r='7' fill='%23fff'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            background-size: 150px 100%; /* Match width to SVG width to remove gaps */
+        }
+
+        .lights-active { display: block !important; }
+
+        .page {
+            display: none;
+            height: 100%; width: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0; left: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .active { display: flex; z-index: 10; }
+        .white-glow { background: radial-gradient(circle, #ffffff 0%, #A9A9A9 100%); }
+
+        .card {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            max-width: 320px;
+            width: 85%;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        #final-card {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s ease 2.5s;
+        }
+
+        .show-final-content #final-card { opacity: 1; transform: translateY(0); }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            width: 250%; height: 250%;
+            background: conic-gradient(transparent, var(--soft-pink), var(--gold), transparent);
+            animation: rotateBorder 4s linear infinite;
+            z-index: -2;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            background: white;
+            border-radius: 15px;
+            z-index: -1;
+        }
+
+        @keyframes rotateBorder {
+            from { transform: rotate(0deg); } to { transform: rotate(360deg); }
+        }
+
+        /* Curtain Fade-Out */
+        .curtain-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex; z-index: 2000;
+            pointer-events: none;
+            transition: opacity 1.5s ease 4s;
+        }
+
+        .show-final-content .curtain-wrapper { opacity: 0; }
+
+        .curtain {
+            width: 50.5%; height: 100.5%;
+            background: var(--curtain-rose);
+            background-image: repeating-linear-gradient(to right, rgba(0,0,0,0) 0px, rgba(0,0,0,0.1) 25px);
+            border-bottom: 8px solid var(--gold);
+            transform-origin: top;
+            transition: transform 3.5s ease-in-out;
+        }
+
+        .open-left { transform: rotate(-12deg) translateX(-115%); }
+        .open-right { transform: rotate(12deg) translateX(115%); }
+
+        button {
+            padding: 12px 25px;
+            background: var(--text-dark);
+            color: white;
+            border: 2px solid var(--gold);
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="animation-container"></div>
+    <div id="rope-lights"></div>
+
+    <section class="page active white-glow" id="page1">
+        <h1>Happy Birthday My LOve❣</h1>
+        <p>A cinematic journey made for you</p>
+        <button onclick="goToPage(2)">Open Your Gift🎁</button>
+    </section>
+
+    <section class="page" id="page2">
+        <div class="card">
+            <h2 id="q-text">Today is your Special day💌</h2>
+            <button onclick="nextQuestion()">Next</button>
+        </div>
+    </section>
+
+    <section class="page" id="page3">
+        <h2 id="stage-msg">Stage is Ready 🤭</h2>
+        <div id="controls"><button onclick="lightsOn()">we Should add some decor and lights🤭💡</button></div>
+    </section>
+
+    <section class="page" id="page4">
+        <div class="curtain-wrapper" id="c-wrap">
+            <div class="curtain" id="curtain-l"></div>
+            <div class="curtain" id="curtain-r"></div>
+        </div>
+        <div class="card" id="final-card">
+            <h2 style="color: var(--gold); margin-bottom: 10px;">Happy Birthday My love😚</h2>
+            <p><b>May Allah keep you always smile 🤗 YOu will get blessed with all your wishes ❣ May allah FulFill all your wishes 🤲🏻 Keep this cute smile always in you face😚 </b>.</p>
+        </div>
+    </section>
+
+    <audio id="audio" src="music.mp3"></audio>
+
+    <script>
+        function spawnHeart() {
+            const container = document.getElementById('animation-container');
+            const heart = document.createElement('div');
+            heart.className = 'heart'; heart.innerHTML = '❤';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+            container.appendChild(heart);
+            setTimeout(() => heart.remove(), 7000);
+        }
+        setInterval(spawnHeart, 400);
+
+        // Infinite Balloon Engine
+        let balloonInterval;
+        function startInfiniteBalloons() {
+            const container = document.getElementById('animation-container');
+            const colors = ['#FF69B4', '#FFD700', '#87CEEB', '#DDA0DD', '#FFB6C1'];
+            
+            balloonInterval = setInterval(() => {
+                const b = document.createElement('div');
+                b.className = 'balloon';
+                b.style.left = Math.random() * 90 + 'vw';
+                b.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                b.style.animationDuration = (Math.random() * 3 + 6) + 's';
+                container.appendChild(b);
+                // Remove from DOM after it flies away to keep performance smooth
+                setTimeout(() => b.remove(), 9000);
+            }, 600); // New balloon every 0.6 seconds
+        }
+
+        function goToPage(index) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const nextPage = document.getElementById('page' + index);
+            nextPage.classList.add('active');
+            
+            if(index === 4) {
+                document.getElementById('rope-lights').classList.add('lights-active');
+                setTimeout(() => {
+                    document.getElementById('curtain-l').classList.add('open-left');
+                    document.getElementById('curtain-r').classList.add('open-right');
+                    nextPage.classList.add('show-final-content');
+                    startInfiniteBalloons(); // Start the infinite loop
+                }, 600);
+            }
+        }
+
+        function lightsOn() {
+            document.getElementById('page3').classList.add('white-glow');
+            document.getElementById('rope-lights').classList.add('lights-active');
+            document.getElementById('stage-msg').innerText = "Music makes it better 🎶";
+            document.getElementById('controls').innerHTML = '<button onclick="startMusic()">Play Music</button>';
+        }
+
+        function startMusic() {
+            document.getElementById('audio').play();
+            document.getElementById('stage-msg').innerText = "Almost THere...🤭";
+            document.getElementById('controls').innerHTML = '<button onclick="goToPage(4)">See Message</button>';
+        }
+
+        let qStep = 0;
+        function nextQuestion() {
+            const texts = ["Have a look madam ji🤭", "Are you ready for your surprise?🥳"];
+            if(qStep < texts.length) {
+                document.getElementById('q-text').innerText = texts[qStep];
+                qStep++;
+            } else { goToPage(3); }
+        }
+    </script>
+</body>
+</html>
